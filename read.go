@@ -4,7 +4,7 @@
 
 // Package pdf implements reading of PDF files.
 //
-// Overview
+// # Overview
 //
 // PDF is Adobe's Portable Document Format, ubiquitous on the internet.
 // A PDF document is a complex data format built on a fairly simple structure.
@@ -43,7 +43,6 @@
 // they are implemented only in terms of the Value API and could be moved outside
 // the package. Equally important, traversal of other PDF data structures can be implemented
 // in other packages as needed.
-//
 package pdf // import "rsc.io/pdf"
 
 // BUG(rsc): The package is incomplete, although it has been used successfully on some
@@ -128,14 +127,16 @@ func NewReaderEncrypted(f io.ReaderAt, size int64, pw func() string) (*Reader, e
 		return nil, fmt.Errorf("not a PDF file: invalid header")
 	}
 	end := size
-	const endChunk = 100
+	//const endChunk = 100
+	const endChunk = 1024
 	buf = make([]byte, endChunk)
 	f.ReadAt(buf, end-endChunk)
 	for len(buf) > 0 && buf[len(buf)-1] == '\n' || buf[len(buf)-1] == '\r' {
 		buf = buf[:len(buf)-1]
 	}
 	buf = bytes.TrimRight(buf, "\r\n\t ")
-	if !bytes.HasSuffix(buf, []byte("%%EOF")) {
+	//HasSuffix
+	if !bytes.Contains(buf, []byte("%%EOF")) {
 		return nil, fmt.Errorf("not a PDF file: missing %%%%EOF")
 	}
 	i := findLastLine(buf, "startxref")
@@ -600,7 +601,7 @@ func (v Value) RawString() string {
 	return x
 }
 
-// Text returns v's string value interpreted as a ``text string'' (defined in the PDF spec)
+// Text returns v's string value interpreted as a “text string” (defined in the PDF spec)
 // and converted to UTF-8.
 // If v.Kind() != String, Text returns the empty string.
 func (v Value) Text() string {
@@ -789,7 +790,7 @@ func (e *errorReadCloser) Close() error {
 
 // Reader returns the data contained in the stream v.
 // If v.Kind() != Stream, Reader returns a ReadCloser that
-// responds to all reads with a ``stream not present'' error.
+// responds to all reads with a “stream not present” error.
 func (v Value) Reader() io.ReadCloser {
 	x, ok := v.data.(stream)
 	if !ok {
